@@ -1,0 +1,230 @@
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { useAuth } from './AuthContext';
+import { uiTranslations } from '../utils/translate';
+
+const AppContext = createContext();
+
+export const AppProvider = ({ children }) => {
+  const { user, token } = useAuth();
+  
+  // Theme state
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  
+  // Language state
+  const [language, setLanguage] = useState(localStorage.getItem('language') || 'en');
+  
+  // Products state
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Bookmarks state (Saved deals)
+  const [savedDeals, setSavedDeals] = useState([]);
+  const [savedLoading, setSavedLoading] = useState(false);
+  
+  // User geolocation coordinates for sorting
+  const [userLocation, setUserLocation] = useState({ lat: 28.6280, lng: 77.2150 });
+  const [locationLoading, setLocationLoading] = useState(true);
+
+  // Toast notification state
+  const [toastMessage, setToastMessage] = useState('');
+
+  // Handle Theme application
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  // Handle Language storage
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
+
+  // Initialize Geolocation
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setUserLocation(coords);
+          setLocationLoading(false);
+          console.log('Location acquired:', coords);
+        },
+        (error) => {
+          console.warn('Geolocation failed or denied, using defaults.');
+          setLocationLoading(false);
+        }
+      );
+    } else {
+      setLocationLoading(false);
+    }
+  }, []);
+
+  // Fetch products based on category, search, and coordinates
+  const fetchProducts = async () => {
+    setProductsLoading(true);
+    try {
+      let url = `/api/products?lat=${userLocation.lat}&lng=${userLocation.lng}`;
+      if (selectedCategory && selectedCategory !== 'All' && selectedCategory !== 'सभी') {
+        url += `&category=${encodeURIComponent(selectedCategory)}`;
+      }
+      if (searchQuery) {
+        url += `&search=${encodeURIComponent(searchQuery)}`;
+      }
+
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        setProducts(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  // Fetch products whenever filters or location updates
+  useEffect(() => {
+    fetchProducts();
+  }, [selectedCategory, searchQuery, userLocation]);
+
+  // Fetch saved deals (bookmarks) for customer
+  const fetchSavedDeals = async () => {
+    if (!token || (user && user.role !== 'customer')) return;
+    setSavedLoading(true);
+    try {
+      const res = await fetch('/api/saved', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSavedDeals(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch saved deals:', error);
+    } finally {
+      setSavedLoading(false);
+    }
+  };
+
+  // Fetch saved deals on login
+  useEffect(() => {
+    if (token && user && user.role === 'customer') {
+      fetchSavedDeals();
+    } else {
+      setSavedDeals([]);
+    }
+  }, [token, user]);
+
+  // Toggle bookmark / save deal
+  const toggleBookmark = async (productId) => {
+    if (!token) {
+      showToast('Please login to save deals');
+      return;
+    }
+    if (user && user.role !== 'customer') {
+      showToast('Only customers can bookmark deals');
+      return;
+    }
+
+    const isBookmarked = savedDeals.some(deal => deal._id === productId);
+
+    try {
+      if (isBookmarked) {
+        const res = await fetch(`/api/saved/${productId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          setSavedDeals(prev => prev.filter(deal => deal._id !== productId));
+          showToast('Removed from saved deals');
+        }
+      } else {
+        const res = await fetch(`/api/saved/${productId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          // Re-fetch list
+          fetchSavedDeals();
+          showToast('Added to saved deals!');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to toggle bookmark:', error);
+    }
+  };
+
+  // Toast triggering
+  const showToast = (message) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage('');
+    }, 3000);
+  };
+
+  // Translate UI helper
+  const t = (key) => {
+    const langDict = uiTranslations[language] || uiTranslations['en'];
+    return langDict[key] || uiTranslations['en'][key] || key;
+  };
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(prev => prev === 'en' ? 'hi' : 'en');
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        theme,
+        toggleTheme,
+        language,
+        toggleLanguage,
+        products,
+        productsLoading,
+        selectedCategory,
+        setSelectedCategory,
+        searchQuery,
+        setSearchQuery,
+        savedDeals,
+        savedLoading,
+        userLocation,
+        setUserLocation,
+        locationLoading,
+        fetchProducts,
+        toggleBookmark,
+        toastMessage,
+        showToast,
+        t,
+      }}
+    >
+      {children}
+      {toastMessage && (
+        <div className="toast">
+          <span>✨</span> {toastMessage}
+        </div>
+      )}
+    </AppContext.Provider>
+  );
+};
+
+export const useApp = () => useContext(AppContext);
