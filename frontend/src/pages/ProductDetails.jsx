@@ -5,7 +5,7 @@ import MapView from '../components/MapView';
 import { Clock, MapPin, Phone, MessageCircle, Heart, ArrowLeft } from 'lucide-react';
 
 const ProductDetails = ({ productId, onBack }) => {
-  const { savedDeals, toggleBookmark, language, t } = useApp();
+  const { savedDeals, toggleBookmark, language, t, showToast } = useApp();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   
@@ -264,10 +264,18 @@ const ProductDetails = ({ productId, onBack }) => {
 
           {/* Action Preorders buttons */}
           <div className="action-buttons">
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ textDecoration: 'none' }}>
+            <button 
+              onClick={() => {
+                const contactNumber = product.vendor?.storePhone || '919999999999';
+                navigator.clipboard.writeText(contactNumber);
+                showToast('📞 Vendor contact copied to clipboard!');
+              }}
+              className="btn-primary" 
+              style={{ border: 'none', width: '100%', cursor: 'pointer' }}
+            >
               <MessageCircle size={18} />
               <span>{t('contactVendor')}</span>
-            </a>
+            </button>
             
             <button className="btn-secondary" onClick={() => setShowMap(!showMap)}>
               <MapPin size={18} />
@@ -278,16 +286,19 @@ const ProductDetails = ({ productId, onBack }) => {
       </div>
 
       {/* Map view toggle container */}
-      {showMap && product.coordinates && (
-        <div style={{ marginTop: '40px', height: '350px' }}>
-          <h3 style={{ marginBottom: '12px' }}>{t('storeLocation')}</h3>
-          <MapView
-            products={[product]}
-            userLocation={product.coordinates}
-            onProductClick={() => {}}
-          />
-        </div>
-      )}
+      {(() => {
+        const mapCoords = product.coordinates || product.vendor?.coordinates;
+        return showMap && mapCoords && (
+          <div style={{ marginTop: '40px', height: '350px' }}>
+            <h3>{t('storeLocation')}</h3>
+            <MapView
+              products={[product]}
+              userLocation={mapCoords}
+              onProductClick={() => {}}
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 };

@@ -130,13 +130,14 @@ const MapView = ({ products, userLocation, onProductClick }) => {
 
         {/* Product/Deal Markers */}
         {products
-          .filter(p => p.coordinates && p.coordinates.lat && p.coordinates.lng)
           .map(product => {
+            const coords = product.coordinates || product.vendor?.coordinates;
+            if (!coords || !coords.lat || !coords.lng) return null;
             const imageSrc = product.image.startsWith('http') ? product.image : product.image;
             return (
               <Marker
                 key={product._id}
-                position={[product.coordinates.lat, product.coordinates.lng]}
+                position={[coords.lat, coords.lng]}
                 icon={createCustomIcon(product.expiryDate)}
               >
                 <Popup>
