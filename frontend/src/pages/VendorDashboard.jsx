@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { ShoppingBag, DollarSign, Award, Leaf, Trash2, CheckCircle, XCircle, Plus, Eye } from 'lucide-react';
 
 const VendorDashboard = ({ onProductSelect, onAddClick }) => {
-  const { t, showToast } = useApp();
+  const { t, showToast, fetchProducts } = useApp();
   const { user, token } = useAuth();
   
   const [stats, setStats] = useState({
@@ -67,6 +67,7 @@ const VendorDashboard = ({ onProductSelect, onAddClick }) => {
       if (res.ok) {
         showToast('Product status updated!');
         loadDashboardData(); // reload
+        if (fetchProducts) fetchProducts();
       }
     } catch (err) {
       console.error(err);
@@ -86,6 +87,7 @@ const VendorDashboard = ({ onProductSelect, onAddClick }) => {
       if (res.ok) {
         showToast('Listing deleted successfully');
         loadDashboardData(); // reload
+        if (fetchProducts) fetchProducts();
       }
     } catch (err) {
       console.error(err);

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Upload, Sparkles, AlertCircle, ArrowLeft, CheckCircle } from 'lucide-react';
 
 const AddProductWizard = ({ onComplete }) => {
-  const { t } = useApp();
+  const { t, fetchProducts } = useApp();
   const { user, token } = useAuth();
   
   const [step, setStep] = useState(1);
@@ -99,6 +99,7 @@ const AddProductWizard = ({ onComplete }) => {
       });
 
       if (res.ok) {
+        if (fetchProducts) fetchProducts();
         setStep(4); // Success step!
       } else {
         const errData = await res.json();
