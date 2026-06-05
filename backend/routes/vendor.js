@@ -6,14 +6,9 @@ import { v2 as cloudinary } from 'cloudinary';
 import Product from '../models/Product.js';
 import { protect, authorize } from '../middleware/auth.js';
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
 
 const router = express.Router();
+
 
 // Ensure uploads folder exists
 const uploadDir = 'uploads';
@@ -110,6 +105,11 @@ router.post('/products', upload.single('image'), async (req, res) => {
     // Upload to Cloudinary if credentials are configured
     if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
       try {
+        cloudinary.config({
+          cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+          api_key: process.env.CLOUDINARY_API_KEY,
+          api_secret: process.env.CLOUDINARY_API_SECRET
+        });
         const result = await cloudinary.uploader.upload(req.file.path, {
           folder: 'reloop',
         });
@@ -176,6 +176,11 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
       let imageUrl = `/uploads/${req.file.filename}`;
       if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
         try {
+          cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET
+          });
           const result = await cloudinary.uploader.upload(req.file.path, {
             folder: 'reloop',
           });

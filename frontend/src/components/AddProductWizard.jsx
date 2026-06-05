@@ -11,6 +11,7 @@ const AddProductWizard = ({ onComplete }) => {
   const [loadingAI, setLoadingAI] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [dragActive, setDragActive] = useState(false);
 
   // Form Fields
   const [name, setName] = useState('');
@@ -39,6 +40,31 @@ const AddProductWizard = ({ onComplete }) => {
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
     triggerAIAnalysis(file);
+  };
+
+  // Handle drag events
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  // Handle drop event
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      triggerAIAnalysis(file);
+    }
   };
 
   // Call Gemini AI analyze endpoint
@@ -182,7 +208,13 @@ const AddProductWizard = ({ onComplete }) => {
               </p>
             </div>
           ) : (
-            <label className="upload-zone">
+            <label 
+              className={`upload-zone ${dragActive ? 'drag-active' : ''}`}
+              onDragEnter={handleDrag}
+              onDragOver={handleDrag}
+              onDragLeave={handleDrag}
+              onDrop={handleDrop}
+            >
               <Upload className="upload-icon" />
               <div>
                 <h3 style={{ marginBottom: '4px' }}>{t('dragDropImage')}</h3>

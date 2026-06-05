@@ -913,7 +913,11 @@ body.dark .leaflet-tile {
   gap: 16px;
 }
 
-.upload-zone:hover {
+.upload-zone * {
+  pointer-events: none;
+}
+
+.upload-zone:hover, .upload-zone.drag-active {
   border-color: var(--primary-green);
   background-color: var(--light-green);
 }
@@ -924,7 +928,7 @@ body.dark .leaflet-tile {
   color: var(--text-light);
 }
 
-.upload-zone:hover .upload-icon {
+.upload-zone:hover .upload-icon, .upload-zone.drag-active .upload-icon {
   color: var(--primary-green);
 }
 

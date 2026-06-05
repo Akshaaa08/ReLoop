@@ -26,6 +26,7 @@ export const AppProvider = ({ children }) => {
   // User geolocation coordinates for sorting
   const [userLocation, setUserLocation] = useState({ lat: 28.6280, lng: 77.2150 });
   const [locationLoading, setLocationLoading] = useState(true);
+  const [locationName, setLocationName] = useState('Gangadham, Pune');
 
   // Toast notification state
   const [toastMessage, setToastMessage] = useState('');
@@ -67,6 +68,63 @@ export const AppProvider = ({ children }) => {
       setLocationLoading(false);
     }
   }, []);
+
+  // Sync user location when user logs in/registers and has coordinates
+  useEffect(() => {
+    if (user && user.coordinates && user.coordinates.lat && user.coordinates.lng) {
+      setUserLocation(user.coordinates);
+      console.log('Synced user coordinates to AppContext:', user.coordinates);
+    }
+  }, [user]);
+
+  const locateUser = () => {
+    if (!navigator.geolocation) {
+      showToast('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setLocationLoading(true);
+    showToast('Acquiring your location...');
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const coords = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        setUserLocation(coords);
+        setLocationLoading(false);
+        showToast('📍 Location updated successfully!');
+      },
+      (error) => {
+        console.warn('Geolocation failed or denied:', error);
+        setLocationLoading(false);
+        showToast('Failed to secure location.');
+      }
+    );
+  };
+
+
+  // Geocode location coordinates whenever they change
+  useEffect(() => {
+    const reverseGeocode = async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.lat}&lon=${userLocation.lng}&zoom=16`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.address) {
+            const addr = data.address;
+            const placeName = addr.suburb || addr.neighbourhood || addr.village || addr.city_district || addr.city || addr.town || 'Pune';
+            setLocationName(placeName);
+          }
+        }
+      } catch (err) {
+        console.error('Reverse geocoding error:', err);
+      }
+    };
+
+    reverseGeocode();
+  }, [userLocation]);
 
   // Fetch products based on category, search, and coordinates
   const fetchProducts = async () => {
@@ -209,7 +267,10 @@ export const AppProvider = ({ children }) => {
         savedLoading,
         userLocation,
         setUserLocation,
+        locationName,
+        setLocationName,
         locationLoading,
+        locateUser,
         fetchProducts,
         toggleBookmark,
         toastMessage,

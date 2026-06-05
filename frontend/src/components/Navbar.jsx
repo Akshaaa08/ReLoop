@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Search, Sun, Moon, Globe, LogOut, User as UserIcon, MapPin, Leaf, Heart, Users } from 'lucide-react';
 
 const Navbar = ({ onNavClick }) => {
-  const { theme, toggleTheme, language, toggleLanguage, searchQuery, setSearchQuery, t } = useApp();
+  const { theme, toggleTheme, language, toggleLanguage, searchQuery, setSearchQuery, locationName, locateUser, t } = useApp();
   const { user, isAuthenticated, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -50,7 +50,6 @@ const Navbar = ({ onNavClick }) => {
           </span>
         </div>
 
-        {/* Location Selector Pill */}
         <div 
           style={{
             display: 'flex',
@@ -66,10 +65,11 @@ const Navbar = ({ onNavClick }) => {
             cursor: 'pointer',
             transition: 'var(--transition)'
           }}
-          onClick={() => onNavClick('map')}
+          onClick={locateUser}
+          title="Auto-detect your location"
         >
           <MapPin size={13} />
-          <span>Gangadham, Pune</span>
+          <span>{locationName}</span>
         </div>
 
         {/* Navigation Links */}
