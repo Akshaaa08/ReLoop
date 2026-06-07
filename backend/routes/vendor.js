@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { v2 as cloudinary } from 'cloudinary';
+import { supabase } from '../config/supabase.js';
 import Product from '../models/Product.js';
 import { protect, authorize } from '../middleware/auth.js';
 
@@ -102,24 +102,34 @@ router.post('/products', upload.single('image'), async (req, res) => {
 
     let imagePath = `/uploads/${req.file.filename}`;
 
-    // Upload to Cloudinary if credentials are configured
-    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+    // Upload to Supabase if configured
+    if (supabase) {
       try {
-        cloudinary.config({
-          cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-          api_key: process.env.CLOUDINARY_API_KEY,
-          api_secret: process.env.CLOUDINARY_API_SECRET
-        });
-        const result = await cloudinary.uploader.upload(req.file.path, {
-          folder: 'reloop',
-        });
-        imagePath = result.secure_url;
+        const fileBuffer = fs.readFileSync(req.file.path);
+        const fileName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`;
+        const bucketName = process.env.SUPABASE_BUCKET || 'reloop';
+
+        const { data, error } = await supabase.storage
+          .from(bucketName)
+          .upload(fileName, fileBuffer, {
+            contentType: req.file.mimetype,
+            upsert: true
+          });
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from(bucketName)
+          .getPublicUrl(fileName);
+
+        imagePath = publicUrl;
+
         // Delete temporary file from local filesystem
         if (fs.existsSync(req.file.path)) {
           fs.unlinkSync(req.file.path);
         }
-      } catch (cloudinaryError) {
-        console.error('Cloudinary upload failed, falling back to local storage:', cloudinaryError.message);
+      } catch (supabaseError) {
+        console.error('Supabase upload failed, falling back to local storage:', supabaseError.message);
       }
     }
 
@@ -174,23 +184,42 @@ router.put('/products/:id', upload.single('image'), async (req, res) => {
     // Update image if new upload
     if (req.file) {
       let imageUrl = `/uploads/${req.file.filename}`;
-      if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+      const bucketName = process.env.SUPABASE_BUCKET || 'reloop';
+      if (supabase) {
         try {
-          cloudinary.config({
-            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-            api_key: process.env.CLOUDINARY_API_KEY,
-            api_secret: process.env.CLOUDINARY_API_SECRET
-          });
-          const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'reloop',
-          });
-          imageUrl = result.secure_url;
+          const fileBuffer = fs.readFileSync(req.file.path);
+          const fileName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`;
+
+          const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(fileName, fileBuffer, {
+              contentType: req.file.mimetype,
+              upsert: true
+            });
+
+          if (error) throw error;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from(bucketName)
+            .getPublicUrl(fileName);
+
+          imageUrl = publicUrl;
+
+          // Delete old image from Supabase if it existed there
+          if (product.image && product.image.includes(bucketName)) {
+            const oldParts = product.image.split(`/public/${bucketName}/`);
+            if (oldParts.length > 1) {
+              const oldFileName = oldParts[1];
+              await supabase.storage.from(bucketName).remove([oldFileName]);
+            }
+          }
+
           // Delete temporary file
           if (fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
           }
-        } catch (cloudinaryError) {
-          console.error('Cloudinary upload failed, falling back to local storage:', cloudinaryError.message);
+        } catch (supabaseError) {
+          console.error('Supabase upload failed, falling back to local storage:', supabaseError.message);
         }
       } else {
         // Fallback local storage: delete old local image if it existed and was local
@@ -254,11 +283,22 @@ router.delete('/products/:id', async (req, res) => {
       return res.status(401).json({ message: 'Not authorized to delete this listing' });
     }
 
-    // Delete image file from server
+    // Delete image file from server or Supabase
     try {
-      const oldPath = path.join(process.cwd(), product.image.substring(1));
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
+      const bucketName = process.env.SUPABASE_BUCKET || 'reloop';
+      if (product.image) {
+        if (product.image.startsWith('http') && supabase && product.image.includes(bucketName)) {
+          const oldParts = product.image.split(`/public/${bucketName}/`);
+          if (oldParts.length > 1) {
+            const oldFileName = oldParts[1];
+            await supabase.storage.from(bucketName).remove([oldFileName]);
+          }
+        } else if (!product.image.startsWith('http')) {
+          const oldPath = path.join(process.cwd(), product.image.substring(1));
+          if (fs.existsSync(oldPath)) {
+            fs.unlinkSync(oldPath);
+          }
+        }
       }
     } catch (err) {
       console.error('Failed to delete old image:', err);
