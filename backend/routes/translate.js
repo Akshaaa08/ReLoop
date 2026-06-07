@@ -35,7 +35,44 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // 1. Try Gemini Translation if API Key is configured
+    // 1. Try Google Translation API first if key is configured
+    const translateApiKey = process.env.GOOGLE_TRANSLATE_API_KEY || process.env.GEMINI_API_KEY;
+    if (translateApiKey && translateApiKey.trim() !== '') {
+      try {
+        const url = `https://translation.googleapis.com/language/translate/v2?key=${translateApiKey.trim()}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            q: [name, category || '', description],
+            target: 'hi',
+            format: 'text'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const translations = data.data?.translations;
+          if (translations && translations.length >= 3) {
+            console.log('[Translate API] Successfully translated using Google Translation API');
+            return res.json({
+              translatedName: translations[0].translatedText,
+              translatedCategory: translations[1].translatedText || category,
+              translatedDescription: translations[2].translatedText
+            });
+          }
+        } else {
+          const errData = await response.json().catch(() => ({}));
+          console.error('[Translate API] Google Translation API returned error status:', response.status, errData);
+        }
+      } catch (translateError) {
+        console.error('[Translate API] Google Translation API request failed:', translateError.message);
+      }
+    }
+
+    // 2. Try Gemini Translation if API Key is configured
     if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
       try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -71,7 +108,7 @@ router.post('/', async (req, res) => {
       }
     }
 
-    // 2. Local fallback dictionary and mapping translation
+    // 3. Local fallback dictionary and mapping translation
     const translatedName = hindiDictionary[name] || `${name} (डील)`;
     const translatedCategory = hindiDictionary[category] || category || 'अन्य';
     
