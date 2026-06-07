@@ -312,3 +312,53 @@ export const translateDynamicContent = async (name, description, category, targe
   
   return { name, description, category }; // Return original if failed
 };
+
+// Batch translation helper for arrays of products
+export const translateProductsBatch = async (productsArray, targetLang) => {
+  if (targetLang === 'en' || !productsArray || productsArray.length === 0) {
+    return productsArray;
+  }
+
+  try {
+    // 1. Gather all texts to translate: 3 strings per product
+    const texts = [];
+    productsArray.forEach(p => {
+      texts.push(p.name || '');
+      texts.push(p.category || '');
+      texts.push(p.description || '');
+    });
+
+    // 2. Call batch translation endpoint
+    const res = await fetch('/api/translate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ q: texts }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const translations = data.translations;
+      
+      if (translations && translations.length === texts.length) {
+        // 3. Map translations back to products
+        return productsArray.map((product, idx) => {
+          const nameTrans = translations[idx * 3];
+          const catTrans = translations[idx * 3 + 1];
+          const descTrans = translations[idx * 3 + 2];
+          return {
+            ...product,
+            name: nameTrans || product.name,
+            category: catTrans || product.category,
+            description: descTrans || product.description,
+          };
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Batch translation failed:', error);
+  }
+
+  return productsArray;
+};

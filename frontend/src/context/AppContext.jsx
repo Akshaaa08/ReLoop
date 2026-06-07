@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useAuth } from './AuthContext';
-import { uiTranslations } from '../utils/translate';
+import { uiTranslations, translateProductsBatch } from '../utils/translate';
 
 const AppContext = createContext();
 
@@ -15,13 +15,41 @@ export const AppProvider = ({ children }) => {
   
   // Products state
   const [products, setProducts] = useState([]);
+  const [translatedProducts, setTranslatedProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   
   // Bookmarks state (Saved deals)
   const [savedDeals, setSavedDeals] = useState([]);
+  const [translatedSavedDeals, setTranslatedSavedDeals] = useState([]);
   const [savedLoading, setSavedLoading] = useState(false);
+
+  // Handle products translation reactively
+  useEffect(() => {
+    const translate = async () => {
+      if (language === 'hi' && products.length > 0) {
+        const trans = await translateProductsBatch(products, 'hi');
+        setTranslatedProducts(trans);
+      } else {
+        setTranslatedProducts(products);
+      }
+    };
+    translate();
+  }, [products, language]);
+
+  // Handle saved deals translation reactively
+  useEffect(() => {
+    const translate = async () => {
+      if (language === 'hi' && savedDeals.length > 0) {
+        const trans = await translateProductsBatch(savedDeals, 'hi');
+        setTranslatedSavedDeals(trans);
+      } else {
+        setTranslatedSavedDeals(savedDeals);
+      }
+    };
+    translate();
+  }, [savedDeals, language]);
   
   // User geolocation coordinates for sorting
   const [userLocation, setUserLocation] = useState({ lat: 28.6280, lng: 77.2150 });
@@ -257,13 +285,13 @@ export const AppProvider = ({ children }) => {
         toggleTheme,
         language,
         toggleLanguage,
-        products,
+        products: translatedProducts,
         productsLoading,
         selectedCategory,
         setSelectedCategory,
         searchQuery,
         setSearchQuery,
-        savedDeals,
+        savedDeals: translatedSavedDeals,
         savedLoading,
         userLocation,
         setUserLocation,
