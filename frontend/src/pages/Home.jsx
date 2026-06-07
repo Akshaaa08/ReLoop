@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import DealCard from '../components/DealCard';
 import MapView from '../components/MapView';
+import ProductDetailModal from '../components/ProductDetailModal';
 import { ShoppingBag } from 'lucide-react';
 
 const ClearanceBanners = ({ onSelectCategory }) => {
@@ -140,6 +141,8 @@ const Home = ({ onProductSelect }) => {
   } = useApp();
 
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+  const [selectedProductModalId, setSelectedProductModalId] = useState(null);
+  const selectedProductForModal = products.find(p => p._id === selectedProductModalId);
 
   const categories = [
     { en: 'All', hi: 'सभी' },
@@ -276,12 +279,12 @@ const Home = ({ onProductSelect }) => {
             onClick={() => setIsMapExpanded(true)}
             className="pinned-map-container"
           >
-            {/* Prevent interactive zoom/pan/marker click while small by setting pointer-events to none */}
-            <div style={{ pointerEvents: 'none', height: '100%' }}>
+            <div style={{ height: '100%' }}>
               <MapView
                 products={products}
                 userLocation={userLocation}
-                onProductClick={onProductSelect}
+                mapType="small"
+                onSmallMapClick={() => setIsMapExpanded(true)}
               />
             </div>
             
@@ -395,14 +398,22 @@ const Home = ({ onProductSelect }) => {
               <MapView
                 products={products}
                 userLocation={userLocation}
+                mapType="large"
                 onProductClick={(id) => {
-                  onProductSelect(id);
-                  setIsMapExpanded(false);
+                  setSelectedProductModalId(id);
                 }}
               />
             </div>
           </div>
         </div>
+      )}
+
+      {/* Product Details split screen modal popup */}
+      {selectedProductForModal && (
+        <ProductDetailModal
+          product={selectedProductForModal}
+          onClose={() => setSelectedProductModalId(null)}
+        />
       )}
     </div>
   );

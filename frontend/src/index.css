@@ -1272,3 +1272,31 @@ body.dark .icon-btn.delete:hover {
     margin-top: 24px;
   }
 }
+
+/* Premium Map Marker Hover Animations */
+.pin-inner-wrapper {
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s, box-shadow 0.2s;
+}
+
+.custom-map-pin:hover .pin-inner-wrapper {
+  transform: rotate(-45deg) scale(1.25) !important;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.45) !important;
+  z-index: 9999 !important;
+}
+
+/* Smooth Fade and Scale for Map Popups */
+.leaflet-popup {
+  animation: popupFadeScale 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes popupFadeScale {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+

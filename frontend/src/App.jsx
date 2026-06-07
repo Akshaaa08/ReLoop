@@ -16,12 +16,15 @@ import AuthPage from './pages/AuthPage';
 // Component/Additional Imports
 import AddProductWizard from './components/AddProductWizard';
 import MapView from './components/MapView';
+import ProductDetailModal from './components/ProductDetailModal';
 
 const AppContent = () => {
   const { user, isAuthenticated, loading } = useAuth();
   const { products, userLocation, showToast } = useApp();
   const [activePage, setActivePage] = useState('home');
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [selectedProductModalId, setSelectedProductModalId] = useState(null);
+  const selectedProductForModal = products.find(p => p._id === selectedProductModalId);
 
   // Sync routing on authentication change
   useEffect(() => {
@@ -124,7 +127,8 @@ const AppContent = () => {
               <MapView
                 products={products}
                 userLocation={userLocation}
-                onProductClick={handleProductSelect}
+                mapType="large"
+                onProductClick={(id) => setSelectedProductModalId(id)}
               />
             </div>
           </div>
@@ -160,6 +164,14 @@ const AppContent = () => {
           />
         )}
       </div>
+
+      {/* Product Details split screen modal popup */}
+      {selectedProductForModal && (
+        <ProductDetailModal
+          product={selectedProductForModal}
+          onClose={() => setSelectedProductModalId(null)}
+        />
+      )}
     </div>
   );
 };

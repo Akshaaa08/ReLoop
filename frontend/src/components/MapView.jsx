@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -22,7 +22,19 @@ const ChangeMapView = ({ center }) => {
   return null;
 };
 
-const MapView = ({ products, userLocation, onProductClick }) => {
+// Map Events listener for small map clicks
+const MapEvents = ({ mapType, onSmallMapClick }) => {
+  useMapEvents({
+    click: () => {
+      if (mapType === 'small' && onSmallMapClick) {
+        onSmallMapClick();
+      }
+    }
+  });
+  return null;
+};
+
+const MapView = ({ products, userLocation, onProductClick, mapType = 'large', onSmallMapClick }) => {
   // Helper: Create custom HTML map pins
   const createCustomIcon = (expiryDate) => {
     const difference = new Date(expiryDate) - new Date();
@@ -37,7 +49,7 @@ const MapView = ({ products, userLocation, onProductClick }) => {
 
     return L.divIcon({
       html: `
-        <div style="
+        <div class="pin-inner-wrapper" style="
           background-color: ${color};
           width: 28px;
           height: 28px;
@@ -108,10 +120,16 @@ const MapView = ({ products, userLocation, onProductClick }) => {
       <MapContainer
         center={[userLocation.lat, userLocation.lng]}
         zoom={14}
-        scrollWheelZoom={true}
+        scrollWheelZoom={mapType !== 'small'}
+        dragging={mapType !== 'small'}
+        zoomControl={mapType !== 'small'}
+        doubleClickZoom={mapType !== 'small'}
+        touchZoom={mapType !== 'small'}
+        boxZoom={mapType !== 'small'}
         style={{ height: '100%', width: '100%' }}
       >
         <ChangeMapView center={userLocation} />
+        <MapEvents mapType={mapType} onSmallMapClick={onSmallMapClick} />
         
         {/* Premium Map Tile Styles */}
         <TileLayer
@@ -139,6 +157,22 @@ const MapView = ({ products, userLocation, onProductClick }) => {
                 key={product._id}
                 position={[coords.lat, coords.lng]}
                 icon={createCustomIcon(product.expiryDate)}
+                eventHandlers={{
+                  mouseover: (e) => {
+                    e.target.openPopup();
+                  },
+                  mouseout: (e) => {
+                    e.target.closePopup();
+                  },
+                  click: (e) => {
+                    e.target.closePopup();
+                    if (mapType === 'small') {
+                      if (onSmallMapClick) onSmallMapClick();
+                    } else {
+                      if (onProductClick) onProductClick(product._id);
+                    }
+                  }
+                }}
               >
                 <Popup>
                   <div
@@ -173,23 +207,27 @@ const MapView = ({ products, userLocation, onProductClick }) => {
                           {product.discountPercentage}% OFF
                         </span>
                       </div>
-                      <button
-                        onClick={() => onProductClick(product._id)}
-                        style={{
-                          width: '100%',
-                          marginTop: '8px',
-                          padding: '6px',
-                          backgroundColor: 'var(--primary-green)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: 'bold',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        View Details
-                      </button>
+                      {mapType !== 'small' && (
+                        <button
+                          onClick={() => {
+                            if (onProductClick) onProductClick(product._id);
+                          }}
+                          style={{
+                            width: '100%',
+                            marginTop: '8px',
+                            padding: '6px',
+                            backgroundColor: 'var(--primary-green)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          View Details
+                        </button>
+                      )}
                     </div>
                   </div>
                 </Popup>
