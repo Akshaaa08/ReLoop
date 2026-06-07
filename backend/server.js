@@ -230,7 +230,11 @@ const seedDatabase = async () => {
     await Product.insertMany(mockProducts);
     console.log('Seeded database successfully!');
   } catch (error) {
-    console.error('Seeding database failed:', error.message);
+    if (error.code === 11000 || error.message.includes('E11000')) {
+      console.log('Database already seeded or has duplicate keys. Skipping seed.');
+    } else {
+      console.error('Seeding database failed:', error.message);
+    }
   }
 };
 
