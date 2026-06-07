@@ -107,14 +107,22 @@ router.post('/analyze', protect, authorize('vendor'), upload.single('image'), as
     const originalName = req.file.originalname.toLowerCase();
 
     // 1. Check if Gemini API key exists
-    if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '') {
+    const rawApiKey = process.env.GEMINI_API_KEY;
+    const keyLength = rawApiKey ? rawApiKey.length : 0;
+    const maskedKey = rawApiKey ? `${rawApiKey.substring(0, 6)}... (length: ${keyLength})` : 'undefined';
+    console.log(`[AI Analyze] Environment Check - GEMINI_API_KEY: ${maskedKey}`);
+
+    if (rawApiKey && rawApiKey.trim() !== '') {
       try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        console.log(`[AI Analyze] Initializing GoogleGenerativeAI with key...`);
+        const genAI = new GoogleGenerativeAI(rawApiKey.trim());
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         const mimeType = req.file.mimetype;
+        console.log(`[AI Analyze] Image info - Path: ${filePath}, MimeType: ${mimeType}, Size: ${req.file.size} bytes`);
+        
         const imagePart = fileToGenerativePart(filePath, mimeType);
-
+        
         const prompt = `
           Analyze this product image. Return a JSON object with details of the product.
           The output must be strictly valid JSON and nothing else, matching this schema:
@@ -130,27 +138,34 @@ router.post('/analyze', protect, authorize('vendor'), upload.single('image'), as
           Make sure suggestedDiscountedPrice is a recommended clearance price (typically 40% to 75% lower than original, depending on perishable nature).
         `;
 
+        console.log(`[AI Analyze] Sending request to Gemini (model: gemini-2.5-flash)...`);
         const result = await model.generateContent([prompt, imagePart]);
+        console.log(`[AI Analyze] Received response from Gemini. Resolving text...`);
         const response = await result.response;
         const text = response.text();
+        console.log(`[AI Analyze] Raw Gemini response text:\n${text}`);
 
         // Clean up the response text in case Gemini wraps it in markdown ```json ... ```
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const parsedData = JSON.parse(jsonMatch[0]);
+          console.log(`[AI Analyze] Successfully parsed Gemini response JSON:`, parsedData);
           
           // Delete temporary file
           fs.unlinkSync(filePath);
           
           return res.json(parsedData);
         } else {
+          console.error(`[AI Analyze] Failed to match JSON pattern in response text`);
           throw new Error('Gemini response could not be parsed as JSON');
         }
 
       } catch (geminiError) {
-        console.error('Gemini API call failed, falling back to local catalog:', geminiError.message);
+        console.error('[AI Analyze] Gemini API call failed with exception:', geminiError);
         // Continue to fallback
       }
+    } else {
+      console.log(`[AI Analyze] Skipping Gemini API call because key is empty or undefined.`);
     }
 
     // 2. Local intelligent matcher fallback

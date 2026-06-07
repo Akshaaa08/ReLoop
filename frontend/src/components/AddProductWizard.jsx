@@ -89,7 +89,7 @@ const AddProductWizard = ({ onComplete }) => {
         setDescription(data.suggestedDescription || '');
         setConfidenceScore(data.confidenceScore || 85);
         setOriginalPrice(data.suggestedOriginalPrice || '');
-        setDiscountedPrice(data.suggestedDiscountedPrice || '');
+        setDiscountedPrice(''); // Clear so the vendor manually inputs the discounted price
         setStep(2); // Go to details step automatically!
       } else {
         console.error('AI analyze error');
@@ -299,6 +299,12 @@ const AddProductWizard = ({ onComplete }) => {
               <input type="number" className="form-control" value={discountedPrice} onChange={(e) => setDiscountedPrice(e.target.value)} placeholder="e.g. 15" required />
             </div>
           </div>
+
+          {originalPrice && discountedPrice && parseFloat(discountedPrice) < parseFloat(originalPrice) && (
+            <div style={{ color: 'var(--primary-green)', fontSize: '13px', fontWeight: 'bold', marginTop: '-10px', marginBottom: '10px' }}>
+              🎯 Calculated Discount: {calculateDiscount()}% OFF
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
             <div className="form-group">
