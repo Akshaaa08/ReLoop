@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 
 // Route Imports
@@ -29,7 +30,7 @@ process.on('uncaughtException', (err) => {
 });
 
 // Connect DB
-connectDB();
+await connectDB();
 
 const app = express();
 
@@ -238,9 +239,60 @@ const seedDatabase = async () => {
   }
 };
 
+// Automatically refresh expired seeded/mock products on server startup to keep demo data fresh
+const refreshExpiredMockProducts = async () => {
+  try {
+    const products = await Product.find({ status: 'active' });
+    const now = new Date();
+    
+    const offsets = [
+      2.25 * 60 * 60 * 1000, // 2.25h (Red)
+      24 * 60 * 60 * 1000,   // 24h (Green)
+      5 * 60 * 60 * 1000,    // 5h (Orange)
+      3 * 60 * 60 * 1000,    // 3h (Red)
+      48 * 60 * 60 * 1000,   // 48h (Green)
+      6 * 60 * 60 * 1000,    // 6h (Orange)
+      72 * 60 * 60 * 1000,   // 72h (Green)
+      4 * 60 * 60 * 1000,    // 4h (Orange)
+    ];
+
+    let updatedCount = 0;
+    for (let i = 0; i < products.length; i++) {
+      const prod = products[i];
+      const expiry = new Date(prod.expiryDate);
+      if (expiry < now) {
+        const offset = offsets[i % offsets.length];
+        prod.expiryDate = new Date(Date.now() + offset);
+        prod.createdAt = now;
+        
+        if (mongoose.connection.readyState === 1) {
+          // Mongoose model save
+          await prod.save();
+        } else {
+          // Fallback DB query and save
+          const doc = await Product.findById(prod._id);
+          if (doc) {
+            doc.expiryDate = prod.expiryDate.toISOString();
+            doc.createdAt = prod.createdAt.toISOString();
+            await doc.save();
+          }
+        }
+        updatedCount++;
+      }
+    }
+    
+    if (updatedCount > 0) {
+      console.log(`🔄 Automatically refreshed ${updatedCount} expired products to recent dates for demo.`);
+    }
+  } catch (err) {
+    console.error('⚠️ Failed to refresh expired mock products:', err.message);
+  }
+};
+
 // Trigger Seeding after server startup
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, async () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
   await seedDatabase();
+  await refreshExpiredMockProducts();
 });

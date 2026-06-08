@@ -115,7 +115,9 @@ const ProductDetailModal = ({ product, onClose }) => {
     const hours = difference / (1000 * 60 * 60);
 
     let color = '#2D8A4E';
-    if (hours > 0 && hours < 4) {
+    if (hours <= 0) {
+      color = '#6B7280';
+    } else if (hours > 0 && hours < 4) {
       color = '#D94625';
     } else if (hours >= 4 && hours < 24) {
       color = '#E28743';

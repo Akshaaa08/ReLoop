@@ -6,7 +6,39 @@ const dbPath = path.join(process.cwd(), 'local_db.json');
 export const loadDb = () => {
   if (fs.existsSync(dbPath)) {
     try {
-      return JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+      const data = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+      let modified = false;
+      const now = new Date();
+
+      const offsets = [
+        2.25 * 60 * 60 * 1000, // 2.25h (Red)
+        24 * 60 * 60 * 1000,   // 24h (Green)
+        5 * 60 * 60 * 1000,    // 5h (Orange)
+        3 * 60 * 60 * 1000,    // 3h (Red)
+        48 * 60 * 60 * 1000,   // 48h (Green)
+        6 * 60 * 60 * 1000,    // 6h (Orange)
+        72 * 60 * 60 * 1000,   // 72h (Green)
+        4 * 60 * 60 * 1000,    // 4h (Orange)
+      ];
+
+      if (data.products && Array.isArray(data.products)) {
+        data.products.forEach((product, index) => {
+          const expiry = new Date(product.expiryDate);
+          if (expiry < now) {
+            const offset = offsets[index % offsets.length];
+            product.expiryDate = new Date(Date.now() + offset).toISOString();
+            product.createdAt = new Date().toISOString();
+            modified = true;
+          }
+        });
+      }
+
+      if (modified) {
+        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
+        console.log('🔄 loadDb: Automatically refreshed expired mock products in local_db.json');
+      }
+
+      return data;
     } catch (e) {
       console.error('Failed to parse local DB, resetting:', e);
     }
