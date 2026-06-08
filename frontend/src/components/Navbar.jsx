@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Search, Sun, Moon, Globe, LogOut, User as UserIcon, MapPin, Leaf, Heart, Users } from 'lucide-react';
+import { Search, Sun, Moon, Globe, LogOut, User as UserIcon, MapPin, Leaf, Heart, Users, ShoppingBag } from 'lucide-react';
 
 const Navbar = ({ onNavClick }) => {
   const { theme, toggleTheme, language, toggleLanguage, searchQuery, setSearchQuery, locationName, locateUser, t } = useApp();
@@ -299,8 +299,8 @@ const Navbar = ({ onNavClick }) => {
               padding: '8px 18px', 
               fontSize: '13px', 
               borderRadius: '18px', 
-              background: 'linear-gradient(135deg, #2563EB, #3B82F6)',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+              background: 'var(--pastel-gradient)',
+              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
             }}
           >
             {t('login')}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { translateDynamicContent } from '../utils/translate';
 import MapView from '../components/MapView';
-import { Clock, MapPin, Phone, MessageCircle, Heart, ArrowLeft } from 'lucide-react';
+import { Clock, MapPin, Phone, MessageCircle, Heart, ArrowLeft, Navigation } from 'lucide-react';
 
 const ProductDetails = ({ productId, onBack }) => {
   const { savedDeals, toggleBookmark, language, t, showToast } = useApp();
@@ -277,25 +277,131 @@ const ProductDetails = ({ productId, onBack }) => {
               <span>{t('contactVendor')}</span>
             </button>
             
-            <button className="btn-secondary" onClick={() => setShowMap(!showMap)}>
+            <button className="btn-secondary" onClick={() => setShowMap(true)}>
               <MapPin size={18} />
-              <span>{showMap ? t('hideMap') : t('viewOnMap')}</span>
+              <span>{t('viewOnMap')}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Map view toggle container */}
+      {/* Map view modal popup overlay */}
       {(() => {
         const mapCoords = product.coordinates || product.vendor?.coordinates;
         return showMap && mapCoords && (
-          <div style={{ marginTop: '40px', height: '350px' }}>
-            <h3>{t('storeLocation')}</h3>
-            <MapView
-              products={[product]}
-              userLocation={mapCoords}
-              onProductClick={() => {}}
-            />
+          <div 
+            className="map-modal-overlay"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 10000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px'
+            }}
+            onClick={() => setShowMap(false)}
+          >
+            <div 
+              className="map-modal-content slide-up-fade"
+              style={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: '650px',
+                height: '520px',
+                backgroundColor: 'var(--bg-card)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border-color)',
+                boxShadow: 'var(--shadow-lg)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div 
+                style={{
+                  padding: '16px 24px',
+                  borderBottom: '1px solid var(--border-color)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: 'var(--bg-secondary)'
+                }}
+              >
+                <div>
+                  <h3 style={{ fontSize: '18px', margin: 0, color: 'var(--text-primary)', fontFamily: 'Outfit, sans-serif' }}>
+                    {product.vendor?.storeName || t('storeLocation')}
+                  </h3>
+                  <p style={{ fontSize: '12px', margin: '4px 0 0 0', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <MapPin size={11} /> {product.vendor?.storeAddress || ''}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowMap(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-primary)',
+                    cursor: 'pointer',
+                    fontSize: '28px',
+                    lineHeight: 1,
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    width: '36px',
+                    height: '36px',
+                    transition: 'background-color 0.2s',
+                    backgroundColor: 'var(--bg-hover)'
+                  }}
+                >
+                  &times;
+                </button>
+              </div>
+
+              {/* Map */}
+              <div style={{ flex: 1, position: 'relative' }}>
+                <MapView
+                  products={[product]}
+                  userLocation={mapCoords}
+                  mapType="large"
+                  onProductClick={() => {}}
+                />
+              </div>
+
+              {/* Navigate Action Button */}
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${mapCoords.lat},${mapCoords.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  textDecoration: 'none',
+                  padding: '16px',
+                  backgroundColor: '#1E90FF', // Navigation Blue
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '15px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 -2px 10px rgba(0,0,0,0.1)'
+                }}
+              >
+                <Navigation size={18} fill="white" />
+                <span>Navigate to Shop</span>
+              </a>
+            </div>
           </div>
         );
       })()}

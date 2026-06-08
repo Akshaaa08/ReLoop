@@ -7,20 +7,20 @@
   --bg-card: #FFFFFF;           /* Card BG: White */
   --bg-hover: #ECE8CC;          /* Hover: cream hover */
   
-  --primary-green: #0A400C;     /* Primary text/accents: Dark green */
-  --accent-green: #819067;      /* Accent/Secondary green: Reseda/sage */
-  --light-green: #E8ECC8;       /* Light tint of green */
-  --pastel-gradient: linear-gradient(135deg, #0A400C, #819067);
-  --logo-gradient: linear-gradient(135deg, #0A400C 0%, #2D8A4E 100%);
+  --primary-green: #10B981;     /* Vibrant Emerald Green Accents (POP) */
+  --accent-green: #059669;      /* Darker Emerald for hovers */
+  --light-green: #E6F4EA;       /* Fresh mint tint background glow */
+  --pastel-gradient: linear-gradient(135deg, #10B981, #059669);
+  --logo-gradient: linear-gradient(135deg, #0A400C 0%, #10B981 100%);
   
   --text-primary: #0A400C;       /* Dark Green text */
   --text-secondary: #5C674E;     /* Muted Reseda Green text */
   --text-light: #819067;         /* Reseda green */
   --border-color: #B1AB86;       /* Borders: Beige border */
   
-  --shadow-sm: 0 2px 8px rgba(10, 64, 12, 0.05);
-  --shadow-md: 0 8px 24px rgba(10, 64, 12, 0.08);
-  --shadow-lg: 0 16px 40px rgba(10, 64, 12, 0.12);
+  --shadow-sm: 0 2px 8px rgba(16, 185, 129, 0.08);
+  --shadow-md: 0 8px 24px rgba(16, 185, 129, 0.12);
+  --shadow-lg: 0 16px 40px rgba(16, 185, 129, 0.16);
   
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -31,7 +31,7 @@
   --warning-color: #E28743;
   --success-color: #2D8A4E;
   
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body.dark {
@@ -41,20 +41,20 @@ body.dark {
   --bg-card: #131A14;           /* Card BG */
   --bg-hover: #1F3A26;          /* Dark forest green for hover/secondary */
   
-  --primary-green: #7B896F;     /* Reseda green accent */
-  --accent-green: #1F3A26;      /* Dark Forest Green accent */
-  --light-green: #1F3A26;
-  --pastel-gradient: linear-gradient(135deg, #7B896F, #1F3A26);
+  --primary-green: #10B981;     /* Vibrant Emerald Green Accents (POP) */
+  --accent-green: #34D399;      /* Brilliant Mint Green for hovers */
+  --light-green: rgba(16, 185, 129, 0.15);
+  --pastel-gradient: linear-gradient(135deg, #10B981, #059669);
   --logo-gradient: linear-gradient(135deg, #FFF8F3 0%, #10B981 100%);
   
   --text-primary: #FFF8F3;       /* Seashell white */
-  --text-secondary: #7B896F;     /* Reseda green text */
-  --text-light: #636363;         /* Dim gray */
+  --text-secondary: #A7F3D0;     /* Minty secondary text */
+  --text-light: #768E7C;         /* Dim gray-green */
   --border-color: #1F3A26;       /* Secondary/Borders */
   
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(31, 58, 38, 0.3);
-  --shadow-lg: 0 16px 40px rgba(31, 58, 38, 0.5);
+  --shadow-md: 0 8px 24px rgba(16, 185, 129, 0.15);
+  --shadow-lg: 0 16px 40px rgba(16, 185, 129, 0.25);
 }
 
 /* Background animated gradient blobs */
@@ -424,8 +424,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .deal-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-green);
 }
 
 .deal-image-container {
@@ -592,14 +593,28 @@ body.dark .deal-discount {
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: var(--transition);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s, border-color 0.25s, box-shadow 0.25s;
 }
 
-.category-pill:hover, .category-pill.active {
+.category-pill:hover {
+  transform: translateY(-2px) scale(1.04);
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--primary-green);
+}
+
+.category-pill.active {
+  background-color: var(--primary-green);
+  color: white;
+  border-color: var(--primary-green);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+}
+
+.category-pill.active:hover {
   background-color: var(--accent-green);
   color: white;
   border-color: var(--accent-green);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  transform: translateY(-2px) scale(1.04);
 }
 
 /* Detail view Layout */
@@ -692,13 +707,18 @@ body.dark .deal-discount {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s, box-shadow 0.2s;
 }
 
 .btn-primary:hover {
-  opacity: 0.95;
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
 }
 
 .btn-secondary {
@@ -714,11 +734,18 @@ body.dark .deal-discount {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: var(--transition);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .btn-secondary:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-hover);
+  border-color: var(--primary-green);
+  color: var(--primary-green);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-secondary:active {
+  transform: translateY(1px) scale(0.98);
 }
 
 /* Statistics Grid - Vendor Dashboard */
@@ -1284,9 +1311,10 @@ body.dark .icon-btn.delete:hover {
   z-index: 9999 !important;
 }
 
-/* Smooth Fade and Scale for Map Popups */
-.leaflet-popup {
-  animation: popupFadeScale 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+/* Smooth Fade and Scale for Map Popups (targeting content wrapper to preserve Leaflet placement translate) */
+.leaflet-popup-content-wrapper {
+  animation: popupFadeScale 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: bottom center;
 }
 
 @keyframes popupFadeScale {

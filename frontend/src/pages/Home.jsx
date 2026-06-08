@@ -15,7 +15,7 @@ const ClearanceBanners = ({ onSelectCategory }) => {
       description: t('banner1Desc'),
       cta: t('grabCroissants'),
       category: "Bakery",
-      gradient: "linear-gradient(135deg, #A44A3F, #D94625)",
+      gradient: "linear-gradient(135deg, #FF6B6B, #FF8E53)",
       image: "https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&q=80"
     },
     {
@@ -25,7 +25,7 @@ const ClearanceBanners = ({ onSelectCategory }) => {
       description: t('banner2Desc'),
       cta: t('rescueProduce'),
       category: "Produce",
-      gradient: "linear-gradient(135deg, #4A5D4E, #819067)",
+      gradient: "linear-gradient(135deg, #10B981, #059669)",
       image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=400&q=80"
     },
     {
@@ -35,7 +35,7 @@ const ClearanceBanners = ({ onSelectCategory }) => {
       description: t('banner3Desc'),
       cta: t('exploreDairy'),
       category: "Dairy",
-      gradient: "linear-gradient(135deg, #3B5249, #5C674E)",
+      gradient: "linear-gradient(135deg, #3B82F6, #1D4ED8)",
       image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&q=80"
     }
   ];
