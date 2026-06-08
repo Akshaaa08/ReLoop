@@ -3,6 +3,39 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { ShoppingBag, DollarSign, Award, Leaf, Trash2, CheckCircle, XCircle, Plus, Eye } from 'lucide-react';
 
+// Custom lightweight high-performance count-up component matching Framer Motion metrics behaviors
+const AnimatedCounter = ({ value, duration = 800, suffix = "" }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = parseFloat(value);
+    if (isNaN(end) || end === 0) {
+      setCount(value);
+      return;
+    }
+    if (start === end) return;
+
+    const totalMiliseconds = duration;
+    const step = end / (totalMiliseconds / 16); // 16ms per frame roughly (60fps)
+    
+    let timer = setInterval(() => {
+      start += step;
+      if (start >= end) {
+        clearInterval(timer);
+        setCount(end);
+      } else {
+        setCount(Math.floor(start));
+      }
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [value, duration]);
+
+  const displayVal = typeof count === 'number' ? count.toLocaleString() : count;
+  return <span>{displayVal}{suffix}</span>;
+};
+
 const VendorDashboard = ({ onProductSelect, onAddClick }) => {
   const { t, showToast, fetchProducts } = useApp();
   const { user, token } = useAuth();
@@ -121,44 +154,52 @@ const VendorDashboard = ({ onProductSelect, onAddClick }) => {
         </button>
       </div>
 
-      {/* Stats Cards Grid */}
+      {/* Stats Cards Grid with Staggered Entrance Animations */}
       <div className="stats-grid">
-        <div className="stat-card">
+        <div className="stat-card animate-slide-up" style={{ animationDelay: '0.0s' }}>
           <div className="stat-icon-wrapper">
             <DollarSign size={20} />
           </div>
           <div className="stat-info">
-            <span className="stat-value">₹{stats.revenueRecovered.toLocaleString()}</span>
+            <span className="stat-value">
+              ₹<AnimatedCounter value={stats.revenueRecovered} />
+            </span>
             <span className="stat-label">{t('revenueRecovered')}</span>
           </div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card animate-slide-up" style={{ animationDelay: '0.1s' }}>
           <div className="stat-icon-wrapper">
             <ShoppingBag size={20} />
           </div>
           <div className="stat-info">
-            <span className="stat-value">{stats.productsRescued}</span>
+            <span className="stat-value">
+              <AnimatedCounter value={stats.productsRescued} />
+            </span>
             <span className="stat-label">{t('productsRescued')}</span>
           </div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card animate-slide-up" style={{ animationDelay: '0.2s' }}>
           <div className="stat-icon-wrapper">
             <Leaf size={20} />
           </div>
           <div className="stat-info">
-            <span className="stat-value">{stats.wastePrevented} kg</span>
+            <span className="stat-value">
+              <AnimatedCounter value={stats.wastePrevented} suffix=" kg" />
+            </span>
             <span className="stat-label">{t('wastePrevented')}</span>
           </div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card animate-slide-up" style={{ animationDelay: '0.3s' }}>
           <div className="stat-icon-wrapper">
             <CheckCircle size={20} />
           </div>
           <div className="stat-info">
-            <span className="stat-value">{stats.activeListings}</span>
+            <span className="stat-value">
+              <AnimatedCounter value={stats.activeListings} />
+            </span>
             <span className="stat-label">{t('activeListings')}</span>
           </div>
         </div>

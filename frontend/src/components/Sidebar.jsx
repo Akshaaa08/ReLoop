@@ -141,30 +141,7 @@ const Sidebar = ({ activePage, onNavClick }) => {
             
             <button
               onClick={handleLogout}
-              style={{
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '8px',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border-color)',
-                backgroundColor: 'transparent',
-                color: 'var(--text-secondary)',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'var(--transition)',
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = 'var(--bg-hover)';
-                e.target.style.color = 'var(--danger-color)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-                e.target.style.color = 'var(--text-secondary)';
-              }}
+              className="sidebar-logout-btn"
             >
               <LogOut size={13} />
               <span>{t('logout')}</span>

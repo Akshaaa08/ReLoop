@@ -267,16 +267,30 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
+  border: 1px solid transparent; /* Prevents text layout shifting on border load */
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s, color 0.25s, border-color 0.25s;
 }
 
-.nav-item:hover, .nav-item.active {
+.nav-item:hover {
   background-color: var(--bg-hover);
   color: var(--text-primary);
+  transform: translateX(4px) scale(1.02);
 }
 
 .nav-item.active {
+  background-color: var(--light-green);
+  color: var(--primary-green);
+  border-color: var(--primary-green);
   font-weight: 600;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.1);
+}
+
+.nav-item.active:hover {
+  transform: translateX(4px) scale(1.02);
+}
+
+.nav-item:active {
+  transform: scale(0.97) translateX(2px);
 }
 
 .nav-item.active .nav-icon {
@@ -776,6 +790,20 @@ body.dark .deal-discount {
   align-items: center;
   gap: 16px;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s, border-color 0.25s;
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px) scale(1.03);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-green);
+}
+
+.stat-card.animate-slide-up {
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  transform: translateY(25px);
 }
 
 .stat-icon-wrapper {
@@ -787,6 +815,11 @@ body.dark .deal-discount {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon-wrapper {
+  transform: rotate(15deg) scale(1.1);
 }
 
 .stat-info {
@@ -1326,5 +1359,35 @@ body.dark .icon-btn.delete:hover {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Sidebar Logout Button Styling */
+.sidebar-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.sidebar-logout-btn:hover {
+  background-color: var(--danger-color);
+  color: white;
+  border-color: var(--danger-color);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(217, 70, 37, 0.3);
+}
+
+.sidebar-logout-btn:active {
+  transform: scale(0.97);
 }
 
