@@ -296,31 +296,31 @@ const ProductDetailModal = ({ product, onClose }) => {
           </div>
 
           {/* Contact Action Preorders button */}
-          <a 
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button 
+            onClick={() => {
+              const contactNumber = product.vendor?.storePhone || '919999999999';
+              navigator.clipboard.writeText(contactNumber);
+              showToast('📞 Vendor contact copied to clipboard!');
+            }}
             className="btn-primary" 
             style={{ 
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              textDecoration: 'none',
               padding: '12px',
               borderRadius: 'var(--radius-md)',
               fontWeight: 700,
               fontSize: '14px',
-              backgroundColor: 'var(--primary-green)',
-              color: 'white',
               border: 'none',
+              width: '100%',
               cursor: 'pointer',
               marginTop: 'auto'
             }}
           >
             <MessageCircle size={18} />
             <span>{t('contactVendor')}</span>
-          </a>
+          </button>
         </div>
 
         {/* Right Side: Map and Navigate Button */}
@@ -333,7 +333,7 @@ const ProductDetailModal = ({ product, onClose }) => {
               top: '16px',
               right: '16px',
               zIndex: 1001,
-              background: 'white',
+              background: 'var(--bg-card)',
               border: '1px solid var(--border-color)',
               color: 'var(--text-primary)',
               cursor: 'pointer',
