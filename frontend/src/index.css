@@ -16,7 +16,7 @@
   --text-primary: #0A400C;       /* Dark Green text */
   --text-secondary: #819067;     /* Reseda Green text */
   --text-light: #B1AB86;         /* Beige text */
-  --border-color: #0A400C;       /* Borders: Dark Green border */
+  --border-color: #9E9770;       /* Borders: Dark Brownish-Beige border */
   
   --shadow-color-rgb: 10, 64, 12;
   --shadow-sm: 0 2px 8px rgba(var(--shadow-color-rgb), 0.08);
@@ -36,24 +36,24 @@
 }
 
 body.dark {
-  /* Premium Dark Theme - Night & Forest Greens */
-  --bg-primary: #0D0F0D;        /* Night Black */
-  --bg-secondary: #131A14;      /* Secondary BG / Card BG */
-  --bg-card: #131A14;           /* Card BG */
-  --bg-hover: #1F3A26;          /* Dark forest green for hover/secondary */
+  /* Premium Dark Theme - Slate & Charcoal with Emerald Accents */
+  --bg-primary: #080A10;        /* Night Slate-Charcoal */
+  --bg-secondary: #111422;      /* Slate-Navy Card BG */
+  --bg-card: #111422;           /* Card BG */
+  --bg-hover: #1A1F35;          /* Hover: Slate BG */
   
-  --primary-green: #7B896F;     /* Reseda Green Accent from dark image palette */
-  --accent-green: #1F3A26;      /* Dark Green Accent from dark image palette */
-  --light-green: #1F3A26;       /* Soft Sage-Emerald hover color for dark mode */
-  --pastel-gradient: linear-gradient(135deg, #7B896F, #1F3A26);
-  --logo-gradient: linear-gradient(135deg, #FFF8F3 0%, #7B896F 100%);
+  --primary-green: #10B981;     /* Vibrant Emerald Green Accents (POP) */
+  --accent-green: #059669;      /* Darker Emerald for hovers */
+  --light-green: rgba(16, 185, 129, 0.15); /* Soft Sage-Emerald hover color for dark mode */
+  --pastel-gradient: linear-gradient(135deg, #10B981, #059669);
+  --logo-gradient: linear-gradient(135deg, #FFF8F3 0%, #10B981 100%);
   
   --text-primary: #FFF8F3;       /* Seashell white */
-  --text-secondary: #7B896F;     /* Reseda green text */
-  --text-light: #636363;         /* Dim gray */
-  --border-color: #1F3A26;       /* Borders: Dark Green border for dark theme */
+  --text-secondary: #A3B3CC;     /* Cool Slate-Grey text */
+  --text-light: #6B7C96;         /* Muted Slate text */
+  --border-color: #232B44;       /* Borders: Sharp Slate border */
   
-  --shadow-color-rgb: 31, 58, 38;
+  --shadow-color-rgb: 16, 185, 129;
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 8px 24px rgba(var(--shadow-color-rgb), 0.2);
   --shadow-lg: 0 16px 40px rgba(var(--shadow-color-rgb), 0.4);
