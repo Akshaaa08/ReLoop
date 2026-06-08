@@ -7,20 +7,21 @@
   --bg-card: #FFFFFF;           /* Card BG: White */
   --bg-hover: #ECE8CC;          /* Hover: cream hover */
   
-  --primary-green: #10B981;     /* Vibrant Emerald Green Accents (POP) */
-  --accent-green: #059669;      /* Darker Emerald for hovers */
-  --light-green: #E6F4EA;       /* Fresh mint tint background glow */
-  --pastel-gradient: linear-gradient(135deg, #10B981, #059669);
-  --logo-gradient: linear-gradient(135deg, #0A400C 0%, #10B981 100%);
+  --primary-green: #0A400C;     /* Dark Green Accent from image palette */
+  --accent-green: #819067;      /* Reseda Green Accent from image palette */
+  --light-green: #E8ECC8;       /* Soft Sage-Emerald hover color from image palette */
+  --pastel-gradient: linear-gradient(135deg, #0A400C, #819067);
+  --logo-gradient: linear-gradient(135deg, #0A400C 0%, #819067 100%);
   
   --text-primary: #0A400C;       /* Dark Green text */
-  --text-secondary: #5C674E;     /* Muted Reseda Green text */
-  --text-light: #819067;         /* Reseda green */
-  --border-color: #B1AB86;       /* Borders: Beige border */
+  --text-secondary: #819067;     /* Reseda Green text */
+  --text-light: #B1AB86;         /* Beige text */
+  --border-color: #0A400C;       /* Borders: Dark Green border */
   
-  --shadow-sm: 0 2px 8px rgba(16, 185, 129, 0.08);
-  --shadow-md: 0 8px 24px rgba(16, 185, 129, 0.12);
-  --shadow-lg: 0 16px 40px rgba(16, 185, 129, 0.16);
+  --shadow-color-rgb: 10, 64, 12;
+  --shadow-sm: 0 2px 8px rgba(var(--shadow-color-rgb), 0.08);
+  --shadow-md: 0 8px 24px rgba(var(--shadow-color-rgb), 0.12);
+  --shadow-lg: 0 16px 40px rgba(var(--shadow-color-rgb), 0.16);
   
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -41,20 +42,21 @@ body.dark {
   --bg-card: #131A14;           /* Card BG */
   --bg-hover: #1F3A26;          /* Dark forest green for hover/secondary */
   
-  --primary-green: #10B981;     /* Vibrant Emerald Green Accents (POP) */
-  --accent-green: #34D399;      /* Brilliant Mint Green for hovers */
-  --light-green: rgba(16, 185, 129, 0.15);
-  --pastel-gradient: linear-gradient(135deg, #10B981, #059669);
-  --logo-gradient: linear-gradient(135deg, #FFF8F3 0%, #10B981 100%);
+  --primary-green: #7B896F;     /* Reseda Green Accent from dark image palette */
+  --accent-green: #1F3A26;      /* Dark Green Accent from dark image palette */
+  --light-green: #1F3A26;       /* Soft Sage-Emerald hover color for dark mode */
+  --pastel-gradient: linear-gradient(135deg, #7B896F, #1F3A26);
+  --logo-gradient: linear-gradient(135deg, #FFF8F3 0%, #7B896F 100%);
   
   --text-primary: #FFF8F3;       /* Seashell white */
-  --text-secondary: #A7F3D0;     /* Minty secondary text */
-  --text-light: #768E7C;         /* Dim gray-green */
-  --border-color: #1F3A26;       /* Secondary/Borders */
+  --text-secondary: #7B896F;     /* Reseda green text */
+  --text-light: #636363;         /* Dim gray */
+  --border-color: #1F3A26;       /* Borders: Dark Green border for dark theme */
   
+  --shadow-color-rgb: 31, 58, 38;
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 8px 24px rgba(16, 185, 129, 0.15);
-  --shadow-lg: 0 16px 40px rgba(16, 185, 129, 0.25);
+  --shadow-md: 0 8px 24px rgba(var(--shadow-color-rgb), 0.2);
+  --shadow-lg: 0 16px 40px rgba(var(--shadow-color-rgb), 0.4);
 }
 
 /* Background animated gradient blobs */
@@ -621,7 +623,7 @@ body.dark .deal-discount {
   background-color: var(--primary-green);
   color: white;
   border-color: var(--primary-green);
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 14px rgba(var(--shadow-color-rgb), 0.3);
 }
 
 .category-pill.active:hover {
@@ -721,18 +723,18 @@ body.dark .deal-discount {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 4px 12px rgba(var(--shadow-color-rgb), 0.25);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s, box-shadow 0.2s;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+  box-shadow: 0 6px 20px rgba(var(--shadow-color-rgb), 0.45);
 }
 
 .btn-primary:active {
   transform: translateY(1px) scale(0.98);
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 2px 8px rgba(var(--shadow-color-rgb), 0.2);
 }
 
 .btn-secondary {
@@ -1134,7 +1136,7 @@ body.dark .leaflet-tile {
 }
 
 .inventory-row:hover {
-  background-color: var(--bg-secondary);
+  background-color: var(--light-green);
 }
 
 .product-cell {

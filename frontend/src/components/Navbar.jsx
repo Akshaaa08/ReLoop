@@ -27,11 +27,11 @@ const Navbar = ({ onNavClick }) => {
               width: '36px', 
               height: '36px', 
               borderRadius: '10px',
-              background: 'linear-gradient(135deg, #10B981, #0A400C)',
+              background: 'var(--pastel-gradient)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+              boxShadow: '0 4px 12px rgba(var(--shadow-color-rgb), 0.3)',
               color: '#FFFFFF'
             }}
           >
@@ -300,7 +300,7 @@ const Navbar = ({ onNavClick }) => {
               fontSize: '13px', 
               borderRadius: '18px', 
               background: 'var(--pastel-gradient)',
-              boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
+              boxShadow: '0 4px 12px rgba(var(--shadow-color-rgb), 0.3)'
             }}
           >
             {t('login')}
