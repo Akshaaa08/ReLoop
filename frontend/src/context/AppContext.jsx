@@ -25,6 +25,71 @@ export const AppProvider = ({ children }) => {
   const [translatedSavedDeals, setTranslatedSavedDeals] = useState([]);
   const [savedLoading, setSavedLoading] = useState(false);
 
+  // Cart State
+  const [cart, setCart] = useState(() => {
+    try {
+      const stored = localStorage.getItem('reloop_cart');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [cartOpen, setCartOpen] = useState(false);
+
+  // Sync cart to localStorage
+  useEffect(() => {
+    localStorage.setItem('reloop_cart', JSON.stringify(cart));
+  }, [cart]);
+
+  // Cart helper functions
+  const addToCart = (product, qty = 1) => {
+    if (!user) {
+      showToast('Please login to add items to your cart.');
+      return;
+    }
+    if (user.role !== 'customer') {
+      showToast('Only customers can shop and purchase deals.');
+      return;
+    }
+
+    const existingIdx = cart.findIndex(item => item.product._id === product._id);
+    if (existingIdx > -1) {
+      const currentQty = cart[existingIdx].quantity;
+      const newQty = Math.min(product.quantity, currentQty + qty);
+      const updated = [...cart];
+      updated[existingIdx].quantity = newQty;
+      setCart(updated);
+      showToast(`Updated quantity of ${product.name} in cart.`);
+    } else {
+      const finalQty = Math.min(product.quantity, qty);
+      setCart([...cart, { product, quantity: finalQty }]);
+      showToast(`Added ${product.name} to cart.`);
+    }
+  };
+
+  const updateCartQuantity = (productId, qty) => {
+    if (qty <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+    setCart(prev => prev.map(item => {
+      if (item.product._id === productId) {
+        const finalQty = Math.min(item.product.quantity, qty);
+        return { ...item, quantity: finalQty };
+      }
+      return item;
+    }));
+  };
+
+  const removeFromCart = (productId) => {
+    setCart(prev => prev.filter(item => item.product._id !== productId));
+    showToast('Item removed from cart.');
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
+
   // Handle products translation reactively
   useEffect(() => {
     const translate = async () => {
@@ -304,6 +369,14 @@ export const AppProvider = ({ children }) => {
         toastMessage,
         showToast,
         t,
+        cart,
+        cartOpen,
+        setCartOpen,
+        addToCart,
+        updateCartQuantity,
+        removeFromCart,
+        clearCart,
+        token,
       }}
     >
       {children}

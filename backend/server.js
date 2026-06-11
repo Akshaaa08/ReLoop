@@ -13,6 +13,7 @@ import vendorRoutes from './routes/vendor.js';
 import savedRoutes from './routes/saved.js';
 import aiRoutes from './routes/ai.js';
 import translateRoutes from './routes/translate.js';
+import orderRoutes from './routes/orders.js';
 
 // Model Imports (for seeding)
 import User from './models/User.js';
@@ -49,6 +50,7 @@ app.use('/api/vendor', vendorRoutes);
 app.use('/api/saved', savedRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/translate', translateRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Simple Status Endpoint
 app.get('/api/status', (req, res) => {

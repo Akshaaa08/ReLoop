@@ -33,9 +33,19 @@ export const loadDb = () => {
         });
       }
 
+      if (!data.orders) {
+        data.orders = [];
+        modified = true;
+      }
+
+      if (!data.deliveries) {
+        data.deliveries = [];
+        modified = true;
+      }
+
       if (modified) {
         fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
-        console.log('🔄 loadDb: Automatically refreshed expired mock products in local_db.json');
+        console.log('🔄 loadDb: Automatically refreshed expired mock products or initialized tables in local_db.json');
       }
 
       return data;
@@ -43,7 +53,7 @@ export const loadDb = () => {
       console.error('Failed to parse local DB, resetting:', e);
     }
   }
-  return { users: [], products: [] };
+  return { users: [], products: [], orders: [], deliveries: [] };
 };
 
 export const saveDb = (data) => {
@@ -115,6 +125,17 @@ export const initializeLocalDb = () => {
         email: 'customer@reloop.com',
         password: '$2a$10$U7vN/g24LpI/79Lly91vhuNfSsnH2vB7B5.p0241UfQ9q1n4P01H2',
         role: 'customer',
+        coordinates: { lat: 18.4850, lng: 73.8630 },
+        savedDeals: [],
+        createdAt: new Date().toISOString()
+      },
+      {
+        _id: '665f12345678901234567806',
+        name: 'Raju Delivery Partner',
+        email: 'delivery@reloop.com',
+        password: '$2a$10$U7vN/g24LpI/79Lly91vhuNfSsnH2vB7B5.p0241UfQ9q1n4P01H2', // hashed 'password123'
+        role: 'delivery',
+        deliveryStatus: 'free',
         coordinates: { lat: 18.4850, lng: 73.8630 },
         savedDeals: [],
         createdAt: new Date().toISOString()
@@ -253,7 +274,7 @@ export const initializeLocalDb = () => {
       }
     ];
 
-    saveDb({ users, products });
+    saveDb({ users, products, orders: [], deliveries: [] });
     console.log('🌱 Local JSON database successfully seeded!');
   }
 };

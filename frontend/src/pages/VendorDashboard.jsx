@@ -36,7 +36,7 @@ const AnimatedCounter = ({ value, duration = 800, suffix = "" }) => {
   return <span>{displayVal}{suffix}</span>;
 };
 
-const VendorDashboard = ({ onProductSelect, onAddClick }) => {
+const VendorDashboard = ({ onProductSelect, onAddClick, onNavClick }) => {
   const { t, showToast, fetchProducts } = useApp();
   const { user, token } = useAuth();
   
@@ -48,6 +48,7 @@ const VendorDashboard = ({ onProductSelect, onAddClick }) => {
   });
   
   const [vendorProducts, setVendorProducts] = useState([]);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Fetch stats and products
@@ -74,6 +75,18 @@ const VendorDashboard = ({ onProductSelect, onAddClick }) => {
       if (productsRes.ok) {
         const productsData = await productsRes.json();
         setVendorProducts(productsData);
+      }
+
+      // 3. Fetch pending/confirmed orders count
+      const ordersRes = await fetch('/api/orders/vendor', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (ordersRes.ok) {
+        const ordersData = await ordersRes.json();
+        const pendingCount = ordersData.filter(o => o.status === 'pending' || o.status === 'confirmed').length;
+        setPendingOrdersCount(pendingCount);
       }
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
@@ -155,7 +168,7 @@ const VendorDashboard = ({ onProductSelect, onAddClick }) => {
       </div>
 
       {/* Stats Cards Grid with Staggered Entrance Animations */}
-      <div className="stats-grid">
+      <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
         <div className="stat-card animate-slide-up" style={{ animationDelay: '0.0s' }}>
           <div className="stat-icon-wrapper">
             <DollarSign size={20} />
@@ -201,6 +214,32 @@ const VendorDashboard = ({ onProductSelect, onAddClick }) => {
               <AnimatedCounter value={stats.activeListings} />
             </span>
             <span className="stat-label">{t('activeListings')}</span>
+          </div>
+        </div>
+
+        <div 
+          className="stat-card animate-slide-up" 
+          style={{ 
+            animationDelay: '0.4s', 
+            border: pendingOrdersCount > 0 ? '1px solid var(--danger-color)' : '1px solid var(--border-color)',
+            boxShadow: pendingOrdersCount > 0 ? '0 0 10px rgba(239, 68, 68, 0.05)' : 'none'
+          }}
+          onClick={() => onNavClick && onNavClick('vendor-orders')}
+        >
+          <div 
+            className="stat-icon-wrapper" 
+            style={{ 
+              backgroundColor: pendingOrdersCount > 0 ? 'rgba(239, 68, 68, 0.12)' : 'var(--light-green)', 
+              color: pendingOrdersCount > 0 ? '#EF4444' : 'var(--primary-green)' 
+            }}
+          >
+            <ClipboardList size={20} />
+          </div>
+          <div className="stat-info">
+            <span className="stat-value" style={{ color: pendingOrdersCount > 0 ? '#EF4444' : 'inherit' }}>
+              <AnimatedCounter value={pendingOrdersCount} />
+            </span>
+            <span className="stat-label">Pending Orders</span>
           </div>
         </div>
       </div>

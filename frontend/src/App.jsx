@@ -12,11 +12,16 @@ import ProductDetails from './pages/ProductDetails';
 import SavedDeals from './pages/SavedDeals';
 import VendorDashboard from './pages/VendorDashboard';
 import AuthPage from './pages/AuthPage';
+import CheckoutReview from './pages/CheckoutReview';
+import OrderHistory from './pages/OrderHistory';
+import VendorOrderInbox from './pages/VendorOrderInbox';
+import DeliveryEarnings from './pages/DeliveryEarnings';
 
 // Component/Additional Imports
 import AddProductWizard from './components/AddProductWizard';
 import MapView from './components/MapView';
 import ProductDetailModal from './components/ProductDetailModal';
+import CartDrawer from './components/CartDrawer';
 
 const AppContent = () => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -31,6 +36,8 @@ const AppContent = () => {
     if (isAuthenticated) {
       if (user?.role === 'vendor') {
         setActivePage('vendor-dashboard');
+      } else if (user?.role === 'delivery') {
+        setActivePage('delivery-earnings');
       } else {
         setActivePage('home');
       }
@@ -142,7 +149,24 @@ const AppContent = () => {
           <VendorDashboard
             onProductSelect={handleProductSelect}
             onAddClick={() => setActivePage('add-product')}
+            onNavClick={handleNavClick}
           />
+        )}
+
+        {activePage === 'vendor-orders' && (
+          <VendorOrderInbox />
+        )}
+
+        {activePage === 'checkout' && (
+          <CheckoutReview onOrderPlaced={() => setActivePage('orders')} />
+        )}
+
+        {activePage === 'orders' && (
+          <OrderHistory onExploreDeals={() => setActivePage('home')} />
+        )}
+
+        {activePage === 'delivery-earnings' && (
+          <DeliveryEarnings />
         )}
 
         {activePage === 'add-product' && (
@@ -172,6 +196,9 @@ const AppContent = () => {
           onClose={() => setSelectedProductModalId(null)}
         />
       )}
+
+      {/* Global Cart Drawer */}
+      <CartDrawer onProceed={() => setActivePage('checkout')} />
     </div>
   );
 };

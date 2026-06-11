@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Search, Sun, Moon, Globe, LogOut, User as UserIcon, MapPin, Leaf, Heart, Users, ShoppingBag } from 'lucide-react';
 
 const Navbar = ({ onNavClick }) => {
-  const { theme, toggleTheme, language, toggleLanguage, searchQuery, setSearchQuery, locationName, locateUser, t } = useApp();
+  const { theme, toggleTheme, language, toggleLanguage, searchQuery, setSearchQuery, locationName, locateUser, t, cart, setCartOpen, cartOpen } = useApp();
   const { user, isAuthenticated, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
@@ -115,6 +115,51 @@ const Navbar = ({ onNavClick }) => {
           >
             {t('clearanceMap')}
           </button>
+          
+          {isAuthenticated && user?.role === 'customer' && (
+            <button 
+              onClick={() => onNavClick('orders')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-primary)',
+                fontWeight: 700,
+                fontSize: '13px',
+                cursor: 'pointer',
+                padding: '6px 10px',
+                borderRadius: '8px',
+                transition: 'var(--transition)'
+              }}
+              className="nav-btn-link"
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+            >
+              Order History
+            </button>
+          )}
+
+          {isAuthenticated && user?.role === 'delivery' && (
+            <button 
+              onClick={() => onNavClick('delivery-earnings')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-primary)',
+                fontWeight: 700,
+                fontSize: '13px',
+                cursor: 'pointer',
+                padding: '6px 10px',
+                borderRadius: '8px',
+                transition: 'var(--transition)'
+              }}
+              className="nav-btn-link"
+              onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-hover)'}
+              onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+            >
+              Delivery Panel
+            </button>
+          )}
+
           <button 
             onClick={() => setIsAboutOpen(true)}
             style={{
@@ -187,6 +232,23 @@ const Navbar = ({ onNavClick }) => {
           </button>
         )}
 
+        {/* Cart Icon with Live Badge */}
+        {isAuthenticated && user?.role === 'customer' && (
+          <button 
+            className="btn-toggle" 
+            onClick={() => setCartOpen(!cartOpen)} 
+            style={{ padding: '8px', position: 'relative' }}
+            title="Open Cart"
+          >
+            <ShoppingBag size={15} />
+            {cart.length > 0 && (
+              <span className="nav-cart-badge">
+                {cart.reduce((sum, item) => sum + item.quantity, 0)}
+              </span>
+            )}
+          </button>
+        )}
+
         {/* Profile Trigger */}
         {isAuthenticated ? (
           <div style={{ position: 'relative' }}>
@@ -228,7 +290,7 @@ const Navbar = ({ onNavClick }) => {
                     marginBottom: '4px',
                   }}
                 >
-                  {user.role === 'vendor' ? t('vendor') : t('customer')}
+                  {user.role === 'vendor' ? t('vendor') : user.role === 'delivery' ? 'Delivery Agent' : t('customer')}
                 </div>
                 
                 {user.role === 'vendor' && (
@@ -257,6 +319,93 @@ const Navbar = ({ onNavClick }) => {
                   >
                     <UserIcon size={14} />
                     <span>{t('dashboard')}</span>
+                  </button>
+                )}
+
+                {user.role === 'vendor' && (
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      onNavClick('vendor-orders');
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px 16px',
+                      border: 'none',
+                      background: 'none',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'inherit',
+                      fontSize: '13px',
+                      textAlign: 'left',
+                      width: '100%',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={(e) => (e.target.style.backgroundColor = 'var(--bg-secondary)')}
+                    onMouseLeave={(e) => (e.target.style.backgroundColor = 'transparent')}
+                  >
+                    <ShoppingBag size={14} />
+                    <span>Orders Inbox</span>
+                  </button>
+                )}
+
+                {user.role === 'customer' && (
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      onNavClick('orders');
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px 16px',
+                      border: 'none',
+                      background: 'none',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'inherit',
+                      fontSize: '13px',
+                      textAlign: 'left',
+                      width: '100%',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={(e) => (e.target.style.backgroundColor = 'var(--bg-secondary)')}
+                    onMouseLeave={(e) => (e.target.style.backgroundColor = 'transparent')}
+                  >
+                    <ShoppingBag size={14} />
+                    <span>Order History</span>
+                  </button>
+                )}
+
+                {user.role === 'delivery' && (
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      onNavClick('delivery-earnings');
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '10px 16px',
+                      border: 'none',
+                      background: 'none',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'inherit',
+                      fontSize: '13px',
+                      textAlign: 'left',
+                      width: '100%',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s',
+                    }}
+                    onMouseEnter={(e) => (e.target.style.backgroundColor = 'var(--bg-secondary)')}
+                    onMouseLeave={(e) => (e.target.style.backgroundColor = 'transparent')}
+                  >
+                    <ShoppingBag size={14} />
+                    <span>Earnings Page</span>
                   </button>
                 )}
 

@@ -5,10 +5,10 @@ import { Sparkles, MessageSquare, MapPin } from 'lucide-react';
 
 const AuthPage = ({ onSuccess }) => {
   const { login, register } = useAuth();
-  const { t, showToast } = useApp();
+  const { t, showToast, language } = useApp();
 
   const [isRegister, setIsRegister] = useState(false);
-  const [role, setRole] = useState('customer'); // 'customer' or 'vendor'
+  const [role, setRole] = useState('customer'); // 'customer', 'vendor', 'delivery'
   
   // Basic Form States
   const [name, setName] = useState('');
@@ -69,7 +69,7 @@ const AuthPage = ({ onSuccess }) => {
       const result = await register(userData);
       if (result.success) {
         showToast(t('authSuccess'));
-        onSuccess(role === 'vendor' ? 'vendor-dashboard' : 'home');
+        onSuccess(role === 'vendor' ? 'vendor-dashboard' : role === 'delivery' ? 'delivery-earnings' : 'home');
       } else {
         showToast(result.message);
       }
@@ -104,7 +104,7 @@ const AuthPage = ({ onSuccess }) => {
       {isRegister && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <label className="form-label">{t('chooseRole')}</label>
-          <div className="role-selector">
+          <div className="role-selector" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
             <button
               type="button"
               className={`role-btn ${role === 'customer' ? 'active' : ''}`}
@@ -118,6 +118,13 @@ const AuthPage = ({ onSuccess }) => {
               onClick={() => setRole('vendor')}
             >
               {t('vendor')}
+            </button>
+            <button
+              type="button"
+              className={`role-btn ${role === 'delivery' ? 'active' : ''}`}
+              onClick={() => setRole('delivery')}
+            >
+              {language === 'en' ? 'Delivery' : 'डिलिवरी'}
             </button>
           </div>
         </div>

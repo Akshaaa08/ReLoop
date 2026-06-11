@@ -1,11 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Compass, MapPin, Heart, PlusCircle, LayoutDashboard, ShoppingBag, LogOut, Leaf, User } from 'lucide-react';
 
 const Sidebar = ({ activePage, onNavClick }) => {
-  const { t, language } = useApp();
+  const { t } = useApp();
   const { user, isAuthenticated, logout } = useAuth();
+  const [hasConfirmedOrders, setHasConfirmedOrders] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && user?.role === 'vendor') {
+      const checkOrders = async () => {
+        try {
+          const res = await fetch('/api/orders/vendor', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            // Show red dot if there are confirmed orders waiting for driver, or pending confirmation
+            const waiting = data.some(o => o.status === 'confirmed');
+            setHasConfirmedOrders(waiting);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      };
+
+      checkOrders();
+      const interval = setInterval(checkOrders, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, user]);
 
   const handleLogout = () => {
     logout();
@@ -58,6 +85,31 @@ const Sidebar = ({ activePage, onNavClick }) => {
                 >
                   <PlusCircle className="nav-icon" />
                   <span>{t('addProduct')}</span>
+                </div>
+              </li>
+              <li>
+                <div
+                  className={`nav-item ${activePage === 'vendor-orders' ? 'active' : ''}`}
+                  onClick={() => onNavClick('vendor-orders')}
+                  style={{ position: 'relative' }}
+                >
+                  <ShoppingBag className="nav-icon" />
+                  <span>Orders Inbox</span>
+                  {hasConfirmedOrders && (
+                    <span 
+                      style={{
+                        position: 'absolute',
+                        right: '16px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: 'var(--danger-color)',
+                        borderRadius: '50%',
+                        display: 'block'
+                      }}
+                    />
+                  )}
                 </div>
               </li>
             </>

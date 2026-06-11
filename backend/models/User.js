@@ -22,8 +22,13 @@ const UserSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['customer', 'vendor'],
+    enum: ['customer', 'vendor', 'delivery'],
     default: 'customer',
+  },
+  deliveryStatus: {
+    type: String,
+    enum: ['free', 'busy'],
+    default: 'free',
   },
   // Vendor specific details
   storeName: {
@@ -133,6 +138,7 @@ const User = {
             email: this.email,
             password: this.password,
             role: this.role,
+            deliveryStatus: this.deliveryStatus || 'free',
             storeName: this.storeName,
             storeAddress: this.storeAddress,
             storePhone: this.storePhone,
@@ -164,6 +170,7 @@ const User = {
       email: userData.email.toLowerCase(),
       password: hashedPassword,
       role: userData.role || 'customer',
+      deliveryStatus: userData.deliveryStatus || 'free',
       storeName: userData.storeName || '',
       storeAddress: userData.storeAddress || '',
       storePhone: userData.storePhone || '',
